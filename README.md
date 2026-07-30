@@ -112,6 +112,8 @@ Other non-generic repos:
 
 - Zillowe: Official packages from the Zillowe Foundation.
 
+- Parlex: Packages for the Parlex Linux distro.
+
 ## Adding a package
 
 We welcome contributions to Zoidberg! To maintain high quality and consistency, all submissions must follow the official [Zoidberg Packaging Guidelines](https://zillowe.qzz.io/docs/zds/zoi/zoidberg-guidelines).
@@ -120,7 +122,7 @@ Create a [Merge Request](https://gitlab.com/zillowe/zillwen/zusty/zoidberg/-/mer
 
 Use [`@zillowe/hello`](https://github.com/zillowe/hello) as an example package, [learn more about packaging existing software](https://zillowe.qzz.io/docs/zds/zoi/creating-packages).
 
-For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) for a GitLab example or [`main/ripgrep`](./main/ripgrep/nvchecker.toml) for a GitHub example.
+For automatic version detection, place an `nvchecker.toml` file next to your `.pkg.lua`. See [`@zillowe/zoko`](./zillowe/zoko/nvchecker.toml) for a GitLab example or [`@main/ripgrep`](./main/ripgrep/nvchecker.toml) for a GitHub example.
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for a full step-by-step guide on adding packages and reporting vulnerabilities.
 

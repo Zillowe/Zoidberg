@@ -11,17 +11,17 @@ git:
     url: https://codeberg.org/zillowe/zoidberg.git
 pkg:
   - type: main
-    url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest
-    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.hash
-    # pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.sig
-    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.size
-    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}-{platform}.zpa.files
+    url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zpa
+    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zpa.hash
+    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zpa.sig
+    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zpa.size
+    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zpa.files
   - type: source-main
-    url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest
-    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.hash
-    # pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.sig
-    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.size
-    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/latest/{name}-{version}.zsa.files
+    url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa
+    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.hash
+    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.sig
+    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.size
+    files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.files
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc
@@ -45,5 +45,8 @@ repos:
     type: test
     active: false
   - name: zillowe
+    type: official
+    active: false
+  - name: parlex
     type: official
     active: false

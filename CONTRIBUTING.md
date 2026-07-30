@@ -21,6 +21,7 @@ zoidberg/
 ├── extra/
 ├── community/
 ├── zillowe/
+├── parlex/
 └── ...
 ```
 
@@ -31,6 +32,7 @@ Choose the repo based on the package's maturity:
 - `extra/`: New or niche packages; less common and may be less actively maintained.
 - `community/`: User-submitted packages. New entries start here and may graduate to higher tiers.
 - `zillowe/`: Official packages from Zillowe Foundation.
+- `parlex/`: Packages for the Parlex Linux distro.
 
 ### 2. Package Definition (`.pkg.lua`)
 
