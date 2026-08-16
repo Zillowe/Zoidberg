@@ -5,7 +5,8 @@
       "repo": "extra",
       "repo_type": "official",
       "version": "3.23.0",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "A background rust code checker",
       "scope": "user",
       "sub_packages": [],
@@ -27,14 +28,16 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
       }
     },
     "@zillowe/gct": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.1",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "An intelligent, AI-powered Git assistant",
       "scope": "user",
       "sub_packages": [],
@@ -52,14 +55,16 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
       }
     },
     "@zillowe/hello": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "5.0.0",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "Hello World",
       "scope": "user",
       "sub_packages": [],
@@ -75,14 +80,16 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
       }
     },
     "@zillowe/lct": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.1.1",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "Command-line tool for easily adding open-source licenses to your projects",
       "scope": "user",
       "sub_packages": [],
@@ -98,14 +105,41 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
+      }
+    },
+    "@zillowe/zbsdiff": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "1.5.2",
+      "epoch": 0,
+      "revision": "12",
+      "description": "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
+      "scope": "user",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:rust",
+              "pacman:git"
+            ]
+          }
+        ],
+        "test": []
       }
     },
     "@zillowe/zeno": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.4.0",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "The typography system for the Zillowe Foundation",
       "scope": "system",
       "sub_packages": [],
@@ -113,11 +147,37 @@
       "vuln": [],
       "dependencies": null
     },
+    "@zillowe/zls": {
+      "repo": "zillowe",
+      "repo_type": "official",
+      "version": "1.1.1",
+      "epoch": 0,
+      "revision": "12",
+      "description": "Stateless link shortener inspired by ha.mr.",
+      "scope": "user",
+      "sub_packages": [],
+      "main_sub_packages": [],
+      "vuln": [],
+      "dependencies": {
+        "runtime": [],
+        "build": [
+          {
+            "type": "source",
+            "packages": [
+              "pacman:zig",
+              "pacman:git"
+            ]
+          }
+        ],
+        "test": []
+      }
+    },
     "@zillowe/zoko": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "0.2.0",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "A JSON-like format for data storing",
       "scope": "user",
       "sub_packages": [],
@@ -133,14 +193,16 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
       }
     },
     "@zillowe/zsm": {
       "repo": "zillowe",
       "repo_type": "official",
       "version": "1.1.1",
-      "revision": "11",
+      "epoch": 0,
+      "revision": "12",
       "description": "Modern, security-first replacement for shell-based installation scripts",
       "scope": "user",
       "sub_packages": [],
@@ -156,7 +218,8 @@
               "pacman:git"
             ]
           }
-        ]
+        ],
+        "test": []
       }
     }
   }
