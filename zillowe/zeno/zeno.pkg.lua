@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.4.0"
+local version = ZOI.VERSION or "1.4.3"
 local url = "https://registry.npmjs.org/@zillowe/zeno/-/zeno-" .. version .. ".tgz"
 local archive = "zeno-" .. version .. ".tar.gz"
 
@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "15",
+	revision = "1",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -67,7 +67,7 @@ end
 function verify()
 	return verifyHash(
 		archive,
-		"sha512-097fcc7c9086cf4ed8422632419444ddffdda19e8115d2b3db55d7c4e9c3c0d923cee48fb72c9b7092d078a24b377f7d83ce1a8be8642fa3a9d95fdffeb2c6e3"
+		"sha512-f53ae059cbfb004d602ee2117ee63c79c88e62b82bc967a8016b63b4453030e87a6cd1189a3440dbb50548b700aed15fec906a552349e158c5e89f30e9f1a4a4"
 	)
 end
 

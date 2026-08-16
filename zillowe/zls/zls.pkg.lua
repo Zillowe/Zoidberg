@@ -15,7 +15,7 @@ metadata({
 	name = "zls",
 	repo = "zillowe",
 	version = version,
-	revision = "15",
+	revision = "16",
 	description = "Stateless link shortener inspired by ha.mr.",
 	website = "https://zillowe.qzz.io/docs/zds/zls",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zls",
