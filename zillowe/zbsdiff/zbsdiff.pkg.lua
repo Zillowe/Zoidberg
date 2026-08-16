@@ -1,13 +1,13 @@
-local version = ZOI.VERSION or "0.2.0"
+local version = ZOI.VERSION or "1.5.2"
 
 metadata({
-	name = "zoko",
+	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
 	revision = "12",
-	description = "A JSON-like format for data storing",
-	website = "https://zillowe.qzz.io/docs/akuolwa/zoko",
-	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zoko",
+	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
+	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
+	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
@@ -19,9 +19,9 @@ metadata({
 		email = "contact@zillowe.qzz.io",
 	},
 	license = "Apache-2.0",
-	bins = { "zoko-cli" },
+	bins = { "zbsdiff", "zbspatch" },
 	types = { "source" },
-	tags = { "zillowe", "language", "cli" },
+	tags = { "zillowe", "bsdiff", "cli" },
 	platforms = { "linux" },
 })
 
@@ -45,11 +45,12 @@ function prepare()
 end
 
 function build()
-	cmd("cd source && cargo build --release --locked -p zoko-cli")
+	cmd("cd source && cargo build --release --locked -p zbsdiff-cli")
 end
 
 function package()
-	zcp("source/target/release/zoko-cli", "${pkgstore}/bin/zoko-cli")
+	zcp("source/target/release/zbsdiff", "${pkgstore}/bin/zbsdiff")
+	zcp("source/target/release/zbspatch", "${pkgstore}/bin/zbspatch")
 end
 
 function uninstall() end

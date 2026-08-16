@@ -18,11 +18,10 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "11",
+	revision = "12",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
-	man = "https://raw.githubusercontent.com/zillowe/hello/refs/heads/main/app/man.md",
 	maintainer = {
 		name = "Zillowe Foundation",
 		website = "https://zillowe.qzz.io",
