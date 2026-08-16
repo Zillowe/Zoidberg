@@ -4,7 +4,7 @@ metadata({
 	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
-	revision = "14",
+	revision = "15",
 	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",

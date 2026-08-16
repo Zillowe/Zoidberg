@@ -181,7 +181,7 @@ generate-child:
             '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
             '      for TARGET in $TARGETS; do' \
             '        echo "Building $PKG_FILE for $TARGET..."' \
-            '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --pure -o built_packages $SIGN_ARG' \
+            '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method bwrap -o built_packages $SIGN_ARG' \
             '      done' \
             '      echo "Bundling .zsa for $PKG_FILE..."' \
             '      zoi package bundle "$PKG_FILE" -o built_packages' \
