@@ -4,7 +4,7 @@ metadata({
 	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",
@@ -41,11 +41,13 @@ end
 
 function prepare()
 	cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
-	cmd("cd source && cargo fetch --locked")
+	cmd("cd source")
+	cmd("cargo fetch --locked")
 end
 
 function build()
-	cmd("cd source && cargo build --release --locked -p zbsdiff-cli")
+	cmd("cd source")
+	cmd("cargo build --release --locked -p zbsdiff-cli")
 end
 
 function package()

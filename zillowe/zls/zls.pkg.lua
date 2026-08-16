@@ -15,7 +15,7 @@ metadata({
 	name = "zls",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "Stateless link shortener inspired by ha.mr.",
 	website = "https://zillowe.qzz.io/docs/zds/zls",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zls",
@@ -58,7 +58,8 @@ end
 
 function build()
 	if BUILD_TYPE == "source" then
-		cmd("cd " .. BUILD_DIR .. "/source && zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux")
+		cmd("cd source")
+		cmd("zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux")
 	end
 end
 

@@ -18,7 +18,7 @@ metadata({
 	name = "hello",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "Hello World",
 	website = "https://github.com/zillowe/hello",
 	git = git_url,
@@ -61,7 +61,8 @@ end
 
 function build()
 	if BUILD_TYPE == "source" then
-		cmd("cd " .. BUILD_DIR .. "/source && zig build --release=small -Dtarget=x86_64-linux")
+		cmd("cd source")
+		cmd("zig build --release=small -Dtarget=x86_64-linux")
 	end
 end
 

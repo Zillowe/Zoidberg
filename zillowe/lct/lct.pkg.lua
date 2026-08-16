@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -56,7 +56,8 @@ end
 
 function build()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		cmd("cd source")
+		cmd(get_go_env() .. " ./build/build-release.sh")
 	end
 end
 

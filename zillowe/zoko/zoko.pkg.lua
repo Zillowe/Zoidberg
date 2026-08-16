@@ -4,7 +4,7 @@ metadata({
 	name = "zoko",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "A JSON-like format for data storing",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zoko",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zoko",
@@ -41,11 +41,13 @@ end
 
 function prepare()
 	cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
-	cmd("cd source && cargo fetch --locked")
+	cmd("cd source")
+	cmd("cargo fetch --locked")
 end
 
 function build()
-	cmd("cd source && cargo build --release --locked -p zoko-cli")
+	cmd("cd source")
+	cmd("cargo build --release --locked -p zoko-cli")
 end
 
 function package()

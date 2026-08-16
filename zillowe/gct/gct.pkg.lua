@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "16",
+	revision = "17",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -59,7 +59,8 @@ end
 
 function build()
 	if BUILD_TYPE == "source" then
-		cmd("cd source && " .. get_go_env() .. " ./build/build-release.sh")
+		cmd("cd source")
+		cmd(get_go_env() .. " ./build/build-release.sh")
 	end
 end
 
