@@ -29,7 +29,7 @@ metadata({
 	name = "zeno",
 	repo = "zillowe",
 	version = version,
-	revision = "12",
+	revision = "13",
 	description = "The typography system for the Zillowe Foundation",
 	website = "https://zillowe.qzz.io/docs/zowdy/zeno",
 	git = "https://gitlab.com/zillowe/zillwen/zowdy/zeno",
@@ -50,6 +50,15 @@ metadata({
 	platforms = { "linux", "macos" },
 })
 
+dependencies({
+	build = {
+		types = {
+			source = {
+				required = {},
+			},
+		},
+	},
+})
 function prepare()
 	UTILS.FILE(url, archive)
 	UTILS.EXTRACT(archive, "source")

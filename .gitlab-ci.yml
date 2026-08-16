@@ -137,11 +137,11 @@ generate-child:
         if [ ! -f "$PKG_FILE" ]; then continue; fi
 
         PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)
+        PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")
+        PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")
+        PKG_ID=$(echo "$PKG_REPO-$PKG_NAME" | tr '/' '-')
         PLATFORMS=$(echo "$PKG_JSON" | jq -r '.platforms // [] | .[]')
         PKG_VERSION=$(echo "$PKG_JSON" | jq -r ".version")
-        PKG_BASENAME=$(basename "$PKG_FILE" .pkg.lua)
-        PKG_ID=$(echo "$PKG_FILE" | tr '/' '-' | sed 's/\.pkg\.lua$//')
-        ESCAPED_FILE=$(echo "$PKG_FILE" | sed 's/\./\\./g; s/\//\\\//g')
 
         # ── Linux target ──
         LINUX_TARGETS=""
@@ -168,11 +168,12 @@ generate-child:
             "    TARGETS: \"$LINUX_TARGETS\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \
             "  before_script:" \
-            "    - pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq bubblewrap" \
-            "    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
-            '    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
-            "    - zoi sync" \
-            '    - if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+            "    - |" \
+            "      pacman -Syu --noconfirm curl git bash gnupg zstd coreutils jq bubblewrap" \
+            "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
+            '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
+            "      zoi sync" \
+            '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
             "  script:" \
             "    - |" \
             '      mkdir -p built_packages' \
@@ -233,11 +234,12 @@ generate-child:
               "    TARGETS: \"$MACOS_TARGETS\"" \
               "    PKG_VERSION: \"$PKG_VERSION\"" \
               "  before_script:" \
-              "    - brew install jq gnupg" \
-              "    - curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
-              '    - export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
-              "    - zoi sync" \
-              '    - if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+              "    - |" \
+              "      brew install jq gnupg" \
+              "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
+              '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
+              "      zoi sync" \
+              '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
               "  script:" \
               "    - |" \
               '      mkdir -p built_packages' \
