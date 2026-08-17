@@ -144,28 +144,31 @@ generate-child:
         PKG_VERSION=$(echo "$PKG_JSON" | jq -r ".version")
 
         # ── Linux target ──
-        LINUX_TARGETS=""
+        LINUX_TARGET_LIST=""
         if [ -z "$PLATFORMS" ]; then
-          LINUX_TARGETS="linux-amd64 linux-arm64"
+          LINUX_TARGET_LIST="linux-amd64 linux-arm64"
         else
           for PLATFORM in $PLATFORMS; do
             case "$PLATFORM" in
               ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
-                    if [ "$R" = "linux" ]; then LINUX_TARGETS="$LINUX_TARGETS $T"; fi ;;
-              linux|linux-*) LINUX_TARGETS="$LINUX_TARGETS $PLATFORM" ;;
+                    if [ "$R" = "linux" ]; then LINUX_TARGET_LIST="$LINUX_TARGET_LIST $T"; fi ;;
+              linux) LINUX_TARGET_LIST="$LINUX_TARGET_LIST linux-amd64 linux-arm64" ;;
+              linux-*) LINUX_TARGET_LIST="$LINUX_TARGET_LIST $PLATFORM" ;;
             esac
           done
         fi
-        if [ -n "$LINUX_TARGETS" ]; then
+        for TARGET in $LINUX_TARGET_LIST; do
+          ARCH=${TARGET#linux-}
+          TAG="saas-linux-small-$ARCH"
           printf '%s\n' \
-            "build-linux-$PKG_ID:" \
+            "build-$TARGET-$PKG_ID:" \
             "  stage: build" \
             "  image: archlinux:latest" \
             "  tags:" \
-            "    - saas-linux-small-amd64" \
+            "    - $TAG" \
             "  variables:" \
             "    PKG_FILE: \"$PKG_FILE\"" \
-            "    TARGETS: \"$LINUX_TARGETS\"" \
+            "    TARGET: \"$TARGET\"" \
             "    PKG_VERSION: \"$PKG_VERSION\"" \
             "  before_script:" \
             "    - |" \
@@ -180,10 +183,8 @@ generate-child:
             '      mkdir -p built_packages' \
             '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
             '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
-            '      for TARGET in $TARGETS; do' \
-            '        echo "Building $PKG_FILE for $TARGET..."' \
-            '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
-            '      done' \
+            '      echo "Building $PKG_FILE for $TARGET..."' \
+            '      zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
             '      echo "Bundling .zsa for $PKG_FILE..."' \
             '      zoi package bundle "$PKG_FILE" -o built_packages' \
             '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
@@ -208,137 +209,133 @@ generate-child:
             "      - built_packages/" \
             "    expire_in: 1 day" \
             "" >> generated/child.yml
-        fi
+        done
 
         # ── macOS target ──
-        if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "macos\|ci:.*:macos"; then
-          MACOS_TARGETS="macos-amd64 macos-arm64"
-          if [ -n "$PLATFORMS" ]; then
-            MACOS_TARGETS=""
-            for PLATFORM in $PLATFORMS; do
-              case "$PLATFORM" in
-                ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
-                      if [ "$R" = "macos" ]; then MACOS_TARGETS="$MACOS_TARGETS $T"; fi ;;
-                macos|macos-*) MACOS_TARGETS="$MACOS_TARGETS $PLATFORM" ;;
-              esac
-            done
-          fi
-          if [ -n "$MACOS_TARGETS" ]; then
-            printf '%s\n' \
-              "build-macos-$PKG_ID:" \
-              "  stage: build" \
-              "  image: macos-26-xcode-26" \
-              "  tags:" \
-              "    - saas-macos-medium-m1" \
-              "  variables:" \
-              "    PKG_FILE: \"$PKG_FILE\"" \
-              "    TARGETS: \"$MACOS_TARGETS\"" \
-              "    PKG_VERSION: \"$PKG_VERSION\"" \
-              "  before_script:" \
-              "    - |" \
-              "      brew install jq gnupg" \
-              "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
-              '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
-              "      zoi sync" \
-              '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
-            '      if [ -n "$GPG_PASSWORD" ]; then export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d); fi' \
-              "  script:" \
-              "    - |" \
-              '      mkdir -p built_packages' \
-              '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
-              '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
-              '      for TARGET in $TARGETS; do' \
-              '        echo "Building $PKG_FILE for $TARGET..."' \
-              '        zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
-              '      done' \
-              '      echo "Bundling .zsa for $PKG_FILE..."' \
-              '      zoi package bundle "$PKG_FILE" -o built_packages' \
-              '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
-              '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
-              '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
-              '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
-              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to version $PKG_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PKG_VERSION}/${FILENAME}"; done' \
-              '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Updating latest pointer for $FILENAME..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest/${FILENAME}"; done' \
-              "  artifacts:" \
-              "    paths:" \
-              "      - built_packages/" \
-              "    expire_in: 1 day" \
-              "" >> generated/child.yml
-          fi
+        MACOS_TARGET_LIST=""
+        if [ -z "$PLATFORMS" ]; then
+          MACOS_TARGET_LIST="macos-amd64 macos-arm64"
+        else
+          for PLATFORM in $PLATFORMS; do
+            case "$PLATFORM" in
+              ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
+                    if [ "$R" = "macos" ]; then MACOS_TARGET_LIST="$MACOS_TARGET_LIST $T"; fi ;;
+              macos) MACOS_TARGET_LIST="$MACOS_TARGET_LIST macos-amd64 macos-arm64" ;;
+              macos-*) MACOS_TARGET_LIST="$MACOS_TARGET_LIST $PLATFORM" ;;
+            esac
+          done
         fi
+        for TARGET in $MACOS_TARGET_LIST; do
+          printf '%s\n' \
+            "build-$TARGET-$PKG_ID:" \
+            "  stage: build" \
+            "  image: macos-26-xcode-26" \
+            "  tags:" \
+            "    - saas-macos-medium-m1" \
+            "  variables:" \
+            "    PKG_FILE: \"$PKG_FILE\"" \
+            "    TARGET: \"$TARGET\"" \
+            "    PKG_VERSION: \"$PKG_VERSION\"" \
+            "  before_script:" \
+            "    - |" \
+            "      brew install jq gnupg" \
+            "      curl -fsSL https://zillowe.pages.dev/scripts/zoi/install.sh | bash" \
+            '      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"' \
+            "      zoi sync" \
+            '      if [ -n "$GPG_PRIVATE_KEY" ]; then mkdir -p .gnupg; export GNUPGHOME="$(pwd)/.gnupg"; chmod 700 .gnupg; echo "allow-loopback-pinentry" > .gnupg/gpg-agent.conf; echo "pinentry-mode loopback" > .gnupg/gpg.conf; echo "$GPG_PRIVATE_KEY" | base32 -d | gpg --batch --pinentry-mode loopback --import; gpgconf --kill gpg-agent; GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | grep "^sec" | cut -d: -f5 | head -n 1); echo "$GPG_KEY_ID" > gpg_key_id.txt; fi' \
+            '      if [ -n "$GPG_PASSWORD" ]; then export GPG_PASSWORD=$(echo "$GPG_PASSWORD" | base32 -d); fi' \
+            "  script:" \
+            "    - |" \
+            '      mkdir -p built_packages' \
+            '      GPG_KEY_ID=$(cat gpg_key_id.txt 2>/dev/null || echo "")' \
+            '      SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && SIGN_ARG="--sign $GPG_KEY_ID"' \
+            '      echo "Building $PKG_FILE for $TARGET..."' \
+            '      zoi package build "$PKG_FILE" --install-deps --platform "$TARGET" --method native -o built_packages $SIGN_ARG' \
+            '      echo "Bundling .zsa for $PKG_FILE..."' \
+            '      zoi package bundle "$PKG_FILE" -o built_packages' \
+            '      PKG_JSON=$(zoi package inspect "$PKG_FILE" --json)' \
+            '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
+            '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
+            '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+            '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to version $PKG_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PKG_VERSION}/${FILENAME}"; done' \
+            '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Updating latest pointer for $FILENAME..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest/${FILENAME}"; done' \
+            "  artifacts:" \
+            "    paths:" \
+            "      - built_packages/" \
+            "    expire_in: 1 day" \
+            "" >> generated/child.yml
+        done
 
         # ── Windows target ──
+        WIN_TARGET_LIST=""
         if [ -z "$PLATFORMS" ] || echo "$PLATFORMS" | grep -q "windows\|ci:.*:windows"; then
-          WIN_TARGETS="windows-amd64"
+          WIN_TARGET_LIST="windows-amd64"
           if [ -n "$PLATFORMS" ]; then
-            WIN_TARGETS=""
+            WIN_TARGET_LIST=""
             for PLATFORM in $PLATFORMS; do
               case "$PLATFORM" in
                 ci:*) T="${PLATFORM#ci:}"; T="${T%%:*}"; R="${PLATFORM##*:}"
-                      if [ "$R" = "windows" ]; then WIN_TARGETS="$WIN_TARGETS $T"; fi ;;
-                windows|windows-*) WIN_TARGETS="$WIN_TARGETS $PLATFORM" ;;
+                      if [ "$R" = "windows" ]; then WIN_TARGET_LIST="$WIN_TARGET_LIST $T"; fi ;;
+                windows|windows-*) WIN_TARGET_LIST="$WIN_TARGET_LIST $PLATFORM" ;;
               esac
             done
           fi
-          if [ -n "$WIN_TARGETS" ]; then
-            printf '%s\n' \
-              "build-windows-$PKG_ID:" \
-              "  stage: build" \
-              "  tags:" \
-              "    - saas-windows-medium-amd64" \
-              "  variables:" \
-              "    PKG_FILE: \"$PKG_FILE\"" \
-              "    PKG_VERSION: \"$PKG_VERSION\"" \
-              "    TARGETS: \"$WIN_TARGETS\"" \
-              "  before_script:" \
-              '    - choco install jq -y' \
-              '    - powershell -c "irm zillowe.pages.dev/scripts/zoi/install.ps1|iex"' \
-              "    - zoi sync" \
-              '    - |' \
-              '      if ($env:GPG_PRIVATE_KEY) {' \
-              '        New-Item -ItemType Directory -Force -Path .gnupg' \
-              '        $env:GNUPGHOME = "$(Get-Location)/.gnupg"' \
-              '        Set-Content -Path .gnupg/gpg-agent.conf -Value "allow-loopback-pinentry"' \
-              '        Set-Content -Path .gnupg/gpg.conf -Value "pinentry-mode loopback"' \
-              '        # Use bash for decoding and importing as it is easier than native PowerShell base32' \
-              '        bash -c "echo $GPG_PRIVATE_KEY | base32 -d | gpg --batch --import"' \
-              '        gpgconf --kill gpg-agent' \
-              '        $GPG_KEY_ID = (gpg --list-secret-keys --with-colons | Select-String "^sec" | ForEach-Object { $_.ToString().Split(":")[4] } | Select-Object -First 1)' \
-              '        $GPG_KEY_ID | Out-File -FilePath gpg_key_id.txt -NoNewline' \
-              '      }' \
-              '      if ($env:GPG_PASSWORD) {' \
-              '        $env:GPG_PASSWORD = bash -c "echo $env:GPG_PASSWORD | base32 -d"' \
-              '      }' \
-              "  script:" \
-              "    - |" \
-              '      New-Item -ItemType Directory -Force -Path built_packages' \
-              '      $TargetList = $env:TARGETS -split " " | Where-Object { $_ -ne "" }' \
-              '      $GpgKeyId = if (Test-Path gpg_key_id.txt) { Get-Content gpg_key_id.txt } else { "" }' \
-              '      $SignArg = if ($GpgKeyId) { "--sign $GpgKeyId" } else { "" }' \
-              '      foreach ($Target in $TargetList) {' \
-              '        Write-Host "Building $env:PKG_FILE for $Target..."' \
-              '        zoi package build "$env:PKG_FILE" --install-deps --platform "$Target" --method native -o built_packages $SignArg' \
-              '      }' \
-              '      Write-Host "Bundling .zsa for $env:PKG_FILE..."' \
-              '      zoi package bundle "$env:PKG_FILE" -o built_packages' \
-              '      $PkgJson = (zoi package inspect "$env:PKG_FILE" --json | ConvertFrom-Json)' \
-              '      $PkgName = $PkgJson.name' \
-              '      $PkgRepo = $PkgJson.repo' \
-              '      $PkgIdUpload = if ($PkgRepo -eq $null -or $PkgRepo -eq "null" -or $PkgRepo -eq "") { $PkgName } else { $PkgRepo.Replace("/", ".") + "." + $PkgName }' \
-              '      Get-ChildItem -Path built_packages -Filter "${PkgName}-*" | ForEach-Object {' \
-              '        $FileName = $_.Name' \
-              '        Write-Host "Uploading $FileName to version $env:PKG_VERSION..."' \
-              '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/${env:PKG_VERSION}/$FileName"' \
-              '        Write-Host "Updating latest pointer for $FileName..."' \
-              '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/latest/$FileName"' \
-              '      }' \
-              "  artifacts:" \
-              "    paths:" \
-              "      - built_packages/" \
-              "    expire_in: 1 day" \
-              "" >> generated/child.yml
-          fi
         fi
+        for TARGET in $WIN_TARGET_LIST; do
+          printf '%s\n' \
+            "build-$TARGET-$PKG_ID:" \
+            "  stage: build" \
+            "  tags:" \
+            "    - saas-windows-medium-amd64" \
+            "  variables:" \
+            "    PKG_FILE: \"$PKG_FILE\"" \
+            "    PKG_VERSION: \"$PKG_VERSION\"" \
+            "    TARGET: \"$TARGET\"" \
+            "  before_script:" \
+            '    - choco install jq -y' \
+            '    - powershell -c "irm zillowe.pages.dev/scripts/zoi/install.ps1|iex"' \
+            "    - zoi sync" \
+            '    - |' \
+            '      if ($env:GPG_PRIVATE_KEY) {' \
+            '        New-Item -ItemType Directory -Force -Path .gnupg' \
+            '        $env:GNUPGHOME = "$(Get-Location)/.gnupg"' \
+            '        Set-Content -Path .gnupg/gpg-agent.conf -Value "allow-loopback-pinentry"' \
+            '        Set-Content -Path .gnupg/gpg.conf -Value "pinentry-mode loopback"' \
+            '        # Use bash for decoding and importing as it is easier than native PowerShell base32' \
+            '        bash -c "echo $GPG_PRIVATE_KEY | base32 -d | gpg --batch --import"' \
+            '        gpgconf --kill gpg-agent' \
+            '        $GPG_KEY_ID = (gpg --list-secret-keys --with-colons | Select-String "^sec" | ForEach-Object { $_.ToString().Split(":")[4] } | Select-Object -First 1)' \
+            '        $GPG_KEY_ID | Out-File -FilePath gpg_key_id.txt -NoNewline' \
+            '      }' \
+            '      if ($env:GPG_PASSWORD) {' \
+            '        $env:GPG_PASSWORD = bash -c "echo $env:GPG_PASSWORD | base32 -d"' \
+            '      }' \
+            "  script:" \
+            "    - |" \
+            '      New-Item -ItemType Directory -Force -Path built_packages' \
+            '      $GpgKeyId = if (Test-Path gpg_key_id.txt) { Get-Content gpg_key_id.txt } else { "" }' \
+            '      $SignArg = if ($GpgKeyId) { "--sign $GpgKeyId" } else { "" }' \
+            '      Write-Host "Building $env:PKG_FILE for $env:TARGET..."' \
+            '      zoi package build "$env:PKG_FILE" --install-deps --platform "$env:TARGET" --method native -o built_packages $SignArg' \
+            '      Write-Host "Bundling .zsa for $env:PKG_FILE..."' \
+            '      zoi package bundle "$env:PKG_FILE" -o built_packages' \
+            '      $PkgJson = (zoi package inspect "$env:PKG_FILE" --json | ConvertFrom-Json)' \
+            '      $PkgName = $PkgJson.name' \
+            '      $PkgRepo = $PkgJson.repo' \
+            '      $PkgIdUpload = if ($PkgRepo -eq $null -or $PkgRepo -eq "null" -or $PkgRepo -eq "") { $PkgName } else { $PkgRepo.Replace("/", ".") + "." + $PkgName }' \
+            '      Get-ChildItem -Path built_packages -Filter "${PkgName}-*" | ForEach-Object {' \
+            '        $FileName = $_.Name' \
+            '        Write-Host "Uploading $FileName to version $env:PKG_VERSION..."' \
+            '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/${env:PKG_VERSION}/$FileName"' \
+            '        Write-Host "Updating latest pointer for $FileName..."' \
+            '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/latest/$FileName"' \
+            '      }' \
+            "  artifacts:" \
+            "    paths:" \
+            "      - built_packages/" \
+            "    expire_in: 1 day" \
+            "" >> generated/child.yml
+        done
       done
       if [ "$(wc -l < generated/child.yml)" -le 8 ]; then
         printf '%s\n' \
