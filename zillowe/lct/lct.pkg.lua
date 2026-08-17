@@ -10,7 +10,7 @@ metadata({
 	name = "lct",
 	repo = "zillowe",
 	version = version,
-	revision = "18",
+	revision = "19",
 	description = "Command-line tool for easily adding open-source licenses to your projects",
 	website = "https://zillowe.qzz.io/docs/zds/lct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/lct",
@@ -27,7 +27,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "lct" },
 	types = { "source" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 	tags = { "zillowe", "license", "cli" },
 })
 

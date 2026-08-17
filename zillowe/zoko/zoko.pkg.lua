@@ -4,7 +4,7 @@ metadata({
 	name = "zoko",
 	repo = "zillowe",
 	version = version,
-	revision = "18",
+	revision = "19",
 	description = "A JSON-like format for data storing",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zoko",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zoko",
@@ -22,7 +22,7 @@ metadata({
 	bins = { "zoko-cli" },
 	types = { "source" },
 	tags = { "zillowe", "language", "cli" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 })
 
 dependencies({

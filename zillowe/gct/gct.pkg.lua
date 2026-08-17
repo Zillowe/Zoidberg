@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "18",
+	revision = "19",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -27,7 +27,7 @@ metadata({
 	license = "Apache-2.0",
 	bins = { "gct" },
 	types = { "source" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 	tags = { "zillowe", "ai", "git", "cli" },
 })
 

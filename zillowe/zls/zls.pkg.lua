@@ -15,7 +15,7 @@ metadata({
 	name = "zls",
 	repo = "zillowe",
 	version = version,
-	revision = "18",
+	revision = "19",
 	description = "Stateless link shortener inspired by ha.mr.",
 	website = "https://zillowe.qzz.io/docs/zds/zls",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/zls",
@@ -33,7 +33,7 @@ metadata({
 	bins = { "zls" },
 	types = { "source" },
 	tags = { "zillowe", "cli", "link-shortner" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 })
 
 dependencies({

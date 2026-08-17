@@ -4,7 +4,7 @@ metadata({
 	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
-	revision = "18",
+	revision = "19",
 	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",
@@ -22,7 +22,7 @@ metadata({
 	bins = { "zbsdiff", "zbspatch" },
 	types = { "source" },
 	tags = { "zillowe", "bsdiff", "cli" },
-	platforms = { "linux" },
+	platforms = { "linux-amd64" },
 })
 
 dependencies({
