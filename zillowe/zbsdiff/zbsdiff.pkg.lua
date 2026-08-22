@@ -1,4 +1,4 @@
-local version = ZOI.VERSION or "1.5.2"
+local version = ZOI.VERSION or "1.5.3"
 
 metadata({
 	name = "zbsdiff",
@@ -29,7 +29,7 @@ dependencies({
 	build = {
 		types = {
 			source = {
-				required = { "pacman:rust", "pacman:git" },
+				required = { "pacman:rust", "pacman:git", "pacman:asciidoctor" },
 			},
 		},
 	},
@@ -48,11 +48,17 @@ end
 function build()
 	cmd("cd source")
 	cmd("cargo build --release --locked -p zbsdiff-cli")
+	cmd("asciidoctor --backend manpage --out-file man/zbsdiff.1 man/zbsdiff.adoc")
+	cmd("asciidoctor --backend manpage --out-file man/zbspatch.1 man/zbspatch.adoc")
+	cmd("asciidoctor --backend manpage --out-file man/zbsdiff.3 man/zbsdiff-lib.adoc")
 end
 
 function package()
 	zcp("source/target/release/zbsdiff", "${pkgstore}/bin/zbsdiff")
 	zcp("source/target/release/zbspatch", "${pkgstore}/bin/zbspatch")
+	zman("source/man/zbsdiff.1")
+	zman("source/man/zbspatch.1")
+	zman("source/man/zbsdiff.3")
 end
 
 function uninstall() end
