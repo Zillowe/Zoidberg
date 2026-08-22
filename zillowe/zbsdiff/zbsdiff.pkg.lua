@@ -4,7 +4,7 @@ metadata({
 	name = "zbsdiff",
 	repo = "zillowe",
 	version = version,
-	revision = "2",
+	revision = "3",
 	description = "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zbsdiff",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zbsdiff",
@@ -46,7 +46,6 @@ function prepare()
 end
 
 function build()
-	cmd("cd source")
 	cmd("cargo build --release --locked -p zbsdiff-cli")
 	cmd("asciidoctor --backend manpage --out-file man/zbsdiff.1 man/zbsdiff.adoc")
 	cmd("asciidoctor --backend manpage --out-file man/zbspatch.1 man/zbspatch.adoc")
