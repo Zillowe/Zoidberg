@@ -114,7 +114,7 @@
       "repo_type": "official",
       "version": "1.5.3",
       "epoch": 0,
-      "revision": "19",
+      "revision": "2",
       "description": "Fast and memory saving bsdiff 4.x compatible delta compressor and patcher, fork of qbsdiff.",
       "scope": "user",
       "sub_packages": [],
