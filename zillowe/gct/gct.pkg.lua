@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "21",
+	revision = "22",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
@@ -53,7 +53,7 @@ end
 
 function prepare()
 	if BUILD_TYPE == "source" then
-		cmd("git clone --depth 1 --branch " .. "v" .. version .. " " .. PKG.git .. " source")
+		cmd("git clone --branch " .. "v" .. version .. " " .. PKG.git .. " source")
 	end
 end
 
