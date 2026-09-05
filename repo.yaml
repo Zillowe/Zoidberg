@@ -22,6 +22,12 @@ pkg:
     pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.sig
     size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.size
     files: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}.zsa.files
+delta:
+  - type: main
+    url: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zdelta
+    hash: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zdelta.hash
+    pgp: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zdelta.sig
+    size: https://gitlab.com/api/v4/projects/71125308/packages/generic/{id}/{version}/{name}-{version}-{platform}.zdelta.size
 pgp:
   - name: zillowe-main
     key: https://zillowe.pages.dev/keys/zillowe-main.asc

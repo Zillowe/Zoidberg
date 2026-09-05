@@ -1,10 +1,10 @@
-local version = ZOI.VERSION or "3.24.0"
+local version = ZOI.VERSION or "3.25.0"
 
 metadata({
 	name = "bacon",
 	repo = "extra",
 	version = version,
-	revision = "4",
+	revision = "1",
 	description = "A background rust code checker",
 	website = "https://dystroy.org/bacon",
 	git = "https://github.com/Canop/bacon.git",

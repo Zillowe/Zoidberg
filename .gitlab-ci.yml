@@ -191,6 +191,21 @@ generate-child:
             '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
             '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
             '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+            '      echo "Generating .zdelta for $PKG_FILE ($TARGET)..."' \
+            '      NEW_ZPA=$(find built_packages -name "${PKG_NAME}-${PKG_VERSION}-*.zpa" | head -n 1)' \
+            '      if [ -n "$NEW_ZPA" ]; then' \
+            '        DELTA_OUT="built_packages/${PKG_NAME}-${PKG_VERSION}-${TARGET}.zdelta"' \
+            '        VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
+            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != $V) | .version" | head -n 1)' \
+            '        if [ -n "$PREV_VERSION" ]; then' \
+            '          OLD_ZPA_TMP=$(mktemp --suffix=.zpa)' \
+            '          if curl --fail --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -o "$OLD_ZPA_TMP" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PREV_VERSION}/${PKG_NAME}-${PREV_VERSION}-${TARGET}.zpa"; then' \
+            '            DELTA_SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && DELTA_SIGN_ARG="--sign $GPG_KEY_ID"' \
+            '            zoi package delta "$OLD_ZPA_TMP" "$NEW_ZPA" -o "$DELTA_OUT" $DELTA_SIGN_ARG || echo "Delta generation failed, continuing without .zdelta"' \
+            '          else echo "No previous archive for $TARGET v$PREV_VERSION, skipping delta"; fi' \
+            '          rm -f "$OLD_ZPA_TMP"' \
+            '        else echo "No previous version found, skipping delta"; fi' \
+            '      fi' \
             '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to version $PKG_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PKG_VERSION}/${FILENAME}"; done' \
             '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Updating latest pointer for $FILENAME..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest/${FILENAME}"; done' \
             '      echo "Pruning old versions for ${PKG_ID_UPLOAD} (keeping last 3)..."' \
@@ -257,8 +272,34 @@ generate-child:
             '      PKG_NAME=$(echo "$PKG_JSON" | jq -r ".name")' \
             '      PKG_REPO=$(echo "$PKG_JSON" | jq -r ".repo")' \
             '      if [ -z "$PKG_REPO" ] || [ "$PKG_REPO" = "null" ]; then PKG_ID_UPLOAD="$PKG_NAME"; else PKG_ID_UPLOAD="$(echo "$PKG_REPO" | tr "/" ".").$PKG_NAME"; fi' \
+            '      echo "Generating .zdelta for $PKG_FILE ($TARGET)..."' \
+            '      NEW_ZPA=$(find built_packages -name "${PKG_NAME}-${PKG_VERSION}-*.zpa" | head -n 1)' \
+            '      if [ -n "$NEW_ZPA" ]; then' \
+            '        DELTA_OUT="built_packages/${PKG_NAME}-${PKG_VERSION}-${TARGET}.zdelta"' \
+            '        VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
+            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != $V) | .version" | head -n 1)' \
+            '        if [ -n "$PREV_VERSION" ]; then' \
+            '          OLD_ZPA_TMP=$(mktemp /tmp/old-XXXXXX.zpa)' \
+            '          if curl --fail --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -o "$OLD_ZPA_TMP" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PREV_VERSION}/${PKG_NAME}-${PREV_VERSION}-${TARGET}.zpa"; then' \
+            '            DELTA_SIGN_ARG=""; [ -n "$GPG_KEY_ID" ] && DELTA_SIGN_ARG="--sign $GPG_KEY_ID"' \
+            '            zoi package delta "$OLD_ZPA_TMP" "$NEW_ZPA" -o "$DELTA_OUT" $DELTA_SIGN_ARG || echo "Delta generation failed, continuing without .zdelta"' \
+            '          else echo "No previous archive for $TARGET v$PREV_VERSION, skipping delta"; fi' \
+            '          rm -f "$OLD_ZPA_TMP"' \
+            '        else echo "No previous version found, skipping delta"; fi' \
+            '      fi' \
             '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Uploading $FILENAME to version $PKG_VERSION..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PKG_VERSION}/${FILENAME}"; done' \
             '      find built_packages -name "${PKG_NAME}-*" -type f | while read -r FILE; do FILENAME=$(basename "$FILE"); echo "Updating latest pointer for $FILENAME..."; curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$FILE" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/latest/${FILENAME}"; done' \
+            '      echo "Pruning old versions for ${PKG_ID_UPLOAD} (keeping last 3)..."' \
+            '      VERSIONS_JSON=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
+            '      ALL_VERSIONS=$(echo "$VERSIONS_JSON" | jq -r ".[] | select(.version != \"latest\") | .version" | uniq)' \
+            '      KEEP_VERSIONS=$(echo "$ALL_VERSIONS" | head -n 3)' \
+            '      for V in $ALL_VERSIONS; do' \
+            '        if ! echo "$KEEP_VERSIONS" | grep -q "^$V$"; then' \
+            '          echo "Deleting old version $V...";' \
+            '          PACKAGE_ID=$(echo "$VERSIONS_JSON" | jq -r ".[] | select(.version == \"$V\") | .id" | head -n 1);' \
+            '          curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}";' \
+            '        fi;' \
+            '      done' \
             "  artifacts:" \
             "    paths:" \
             "      - built_packages/" \
@@ -323,12 +364,42 @@ generate-child:
             '      $PkgName = $PkgJson.name' \
             '      $PkgRepo = $PkgJson.repo' \
             '      $PkgIdUpload = if ($PkgRepo -eq $null -or $PkgRepo -eq "null" -or $PkgRepo -eq "") { $PkgName } else { $PkgRepo.Replace("/", ".") + "." + $PkgName }' \
+            '      Write-Host "Generating .zdelta for $env:PKG_FILE ($env:TARGET)..."' \
+            '      $NewZpa = Get-ChildItem -Path built_packages -Filter "$($PkgName)-$($env:PKG_VERSION)-*.zpa" | Select-Object -First 1' \
+            '      if ($NewZpa) {' \
+            '        $DeltaOut = "built_packages/$($PkgName)-$($env:PKG_VERSION)-$($env:TARGET).zdelta"' \
+            '        $VersionsJsonRaw = curl.exe --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=$PkgIdUpload&package_type=generic&sort=desc&order_by=created_at"' \
+            '        $PrevVersion = @($VersionsJsonRaw | ConvertFrom-Json | Where-Object { $_.version -ne "latest" -and $_.version -ne $env:PKG_VERSION } | Select-Object -ExpandProperty version -Unique) | Select-Object -First 1' \
+            '        if ($PrevVersion) {' \
+            '          $OldZpaTmp = [System.IO.Path]::GetTempFileName() + ".zpa"' \
+            '          $OldUrl = "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/$PkgIdUpload/$PrevVersion/$($PkgName)-$PrevVersion-$($env:TARGET).zpa"' \
+            '          curl.exe --fail --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -o $OldZpaTmp $OldUrl' \
+            '          if ($LASTEXITCODE -eq 0) {' \
+            '            $DeltaSignArg = if ($GpgKeyId) { "--sign $GpgKeyId" } else { "" }' \
+            '            zoi package delta $OldZpaTmp $NewZpa.FullName -o $DeltaOut $DeltaSignArg' \
+            '            if ($LASTEXITCODE -ne 0) { Write-Host "Delta generation failed, continuing without .zdelta" }' \
+            '          } else { Write-Host "No previous archive for $($env:TARGET) v$PrevVersion, skipping delta" }' \
+            '          Remove-Item -Force $OldZpaTmp -ErrorAction SilentlyContinue' \
+            '        } else { Write-Host "No previous version found, skipping delta" }' \
+            '      }' \
             '      Get-ChildItem -Path built_packages -Filter "${PkgName}-*" | ForEach-Object {' \
             '        $FileName = $_.Name' \
             '        Write-Host "Uploading $FileName to version $env:PKG_VERSION..."' \
             '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/${env:PKG_VERSION}/$FileName"' \
             '        Write-Host "Updating latest pointer for $FileName..."' \
             '        curl.exe --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $_.FullName "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PkgIdUpload}/latest/$FileName"' \
+            '      }' \
+            '      Write-Host "Pruning old versions for $PkgIdUpload (keeping last 3)..."' \
+            '      $VersionsJsonRaw2 = curl.exe --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=$PkgIdUpload&package_type=generic&sort=desc&order_by=created_at"' \
+            '      $AllPackages = @($VersionsJsonRaw2 | ConvertFrom-Json)' \
+            '      $AllVersions = @($AllPackages | Where-Object { $_.version -ne "latest" } | Select-Object -ExpandProperty version -Unique)' \
+            '      $KeepVersions = @($AllVersions | Select-Object -First 3)' \
+            '      foreach ($V in $AllVersions) {' \
+            '        if ($KeepVersions -notcontains $V) {' \
+            '          Write-Host "Deleting old version $V..."' \
+            '          $PackageId = ($AllPackages | Where-Object { $_.version -eq $V } | Select-Object -First 1).id' \
+            '          curl.exe --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/$PackageId"' \
+            '        }' \
             '      }' \
             "  artifacts:" \
             "    paths:" \
