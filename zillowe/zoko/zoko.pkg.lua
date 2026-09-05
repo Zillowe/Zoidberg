@@ -4,7 +4,7 @@ metadata({
 	name = "zoko",
 	repo = "zillowe",
 	version = version,
-	revision = "20",
+	revision = "21",
 	description = "A JSON-like format for data storing",
 	website = "https://zillowe.qzz.io/docs/akuolwa/zoko",
 	git = "https://gitlab.com/zillowe/zillowex/akuolwa/zoko",

@@ -196,7 +196,7 @@ generate-child:
             '      if [ -n "$NEW_ZPA" ]; then' \
             '        DELTA_OUT="built_packages/${PKG_NAME}-${PKG_VERSION}-${TARGET}.zdelta"' \
             '        VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
-            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != $V) | .version" | head -n 1)' \
+            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != \$V) | .version" | head -n 1)' \
             '        if [ -n "$PREV_VERSION" ]; then' \
             '          OLD_ZPA_TMP=$(mktemp --suffix=.zpa)' \
             '          if curl --fail --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -o "$OLD_ZPA_TMP" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PREV_VERSION}/${PKG_NAME}-${PREV_VERSION}-${TARGET}.zpa"; then' \
@@ -277,7 +277,7 @@ generate-child:
             '      if [ -n "$NEW_ZPA" ]; then' \
             '        DELTA_OUT="built_packages/${PKG_NAME}-${PKG_VERSION}-${TARGET}.zdelta"' \
             '        VERSIONS_JSON_TMP=$(curl --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=${PKG_ID_UPLOAD}&package_type=generic&sort=desc&order_by=created_at")' \
-            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != $V) | .version" | head -n 1)' \
+            '        PREV_VERSION=$(echo "$VERSIONS_JSON_TMP" | jq -r --arg V "$PKG_VERSION" ".[] | select(.version != \"latest\" and .version != \$V) | .version" | head -n 1)' \
             '        if [ -n "$PREV_VERSION" ]; then' \
             '          OLD_ZPA_TMP=$(mktemp /tmp/old-XXXXXX.zpa)' \
             '          if curl --fail --silent --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -o "$OLD_ZPA_TMP" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PKG_ID_UPLOAD}/${PREV_VERSION}/${PKG_NAME}-${PREV_VERSION}-${TARGET}.zpa"; then' \

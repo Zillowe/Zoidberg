@@ -10,7 +10,7 @@ metadata({
 	name = "gct",
 	repo = "zillowe",
 	version = version,
-	revision = "20",
+	revision = "21",
 	description = "An intelligent, AI-powered Git assistant",
 	website = "https://zillowe.qzz.io/docs/zds/gct",
 	git = "https://gitlab.com/zillowe/zillwen/zusty/gct",
