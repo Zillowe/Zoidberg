@@ -37,7 +37,7 @@
       "repo_type": "official",
       "version": "1.4.1",
       "epoch": 0,
-      "revision": "21",
+      "revision": "22",
       "description": "An intelligent, AI-powered Git assistant",
       "scope": "user",
       "sub_packages": [],
